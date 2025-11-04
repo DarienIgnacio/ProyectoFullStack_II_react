@@ -108,6 +108,20 @@ h1, h2, h3, h4, h5, h6 {
     text-decoration: underline;
 }
 
+.navbar-nav .nav-link {
+    /* Forzar que el texto de los enlaces sea blanco */
+    color: var(--color-text-light) !important; 
+    transition: color 0.2s ease-in-out;
+    /* Aplicar un pequeño padding para que sean más fáciles de hacer clic */
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+.navbar-nav .nav-link:hover {
+    /* Dar un color de acento al pasar el ratón */
+    color: var(--color-accent) !important;
+}
+
 /* =====================================
    Header y Navegación
    ===================================== */
@@ -159,7 +173,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .search-box {
     display: flex;
-    border: 1px solid #333;
+    border: 1px solid #03e95f;
     border-radius: 4px;
     overflow: hidden;
 }
@@ -267,7 +281,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .category-item:hover, .product-card:hover, .blog-post:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 20px rgba(38, 255, 0, 0.5);
 }
 
 .category-item {
@@ -295,8 +309,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .product-card img, .blog-post img {
-    width: 100%;
-    height: 200px;
+    /* 🛑 CRÍTICO: Agregar !important para que se muestre 🛑 */
+    width: 100% !important; 
+    height: 200px !important;
     object-fit: cover;
     display: block;
 }
@@ -311,6 +326,26 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1.4em;
     margin-bottom: 15px;
 }
+
+/* 1. Título dentro de la Tarjeta */
+.product-card h5.card-title {
+    /* El h5 ya tiene el color del cuerpo, pero lo forzamos a blanco */
+    color: var(--color-text-light) !important;
+}
+
+/* 2. Enlace (<a>) dentro del Título */
+/* El nombre del producto es un enlace hacia la página de detalle */
+.product-card h5.card-title a {
+    color: var(--color-text-light) !important; /* Fuerza el color a blanco */
+    text-decoration: none; /* Opcional: Quita el subrayado */
+}
+
+/* 3. Comportamiento al pasar el mouse por encima */
+.product-card h5.card-title a:hover {
+    color: var(--color-accent) !important; /* Lo cambia a verde neón para destacar */
+}
+
+
 
 /* =====================================
    Programa de Fidelización
@@ -400,7 +435,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .footer-bottom {
-    border-top: 1px solid #333;
+    border-top: 1px solid #333333;
     margin-top: 30px;
     padding-top: 20px;
     text-align: center;
@@ -415,7 +450,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 8px;
     max-width: 500px;
     margin: 40px auto;
-    border: 1px solid #333;
+    border: 1px solid #333333;
 }
 
 .form-group {
@@ -431,7 +466,7 @@ h1, h2, h3, h4, h5, h6 {
 .form-group input {
     width: 100%;
     padding: 12px;
-    border: 1px solid #333;
+    border: 1px solid #333333;
     border-radius: 4px;
     background-color: var(--color-primary);
     color: var(--color-text-light);
@@ -494,8 +529,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .cart-item img {
-    width: 80px;
-    height: 80px;
+    /* 🛑 CRÍTICO: Agregar !important para anular Bootstrap 🛑 */
+    width: 80px !important;
+    height: 80px !important;
     object-fit: cover;
     border-radius: 4px;
 }
@@ -516,7 +552,7 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
     background-color: var(--color-primary);
     color: var(--color-text-light);
-    border: 1px solid #333;
+    border: 1px solid #333333;
     border-radius: 4px;
 }
 
@@ -529,12 +565,14 @@ h1, h2, h3, h4, h5, h6 {
     cursor: pointer;
 }
 
-.cart-summary {
-    flex: 1;
-    background-color: var(--color-card-bg);
-    padding: 30px;
-    border-radius: 8px;
-    border: 1px solid #333;
+.cart-summary, .order-summary {
+    color: var(--color-text-light) !important;
+}
+
+/* Si el total usa una etiqueta fuerte (h4, h3, etc.), también la apuntamos */
+.cart-summary h4, .cart-summary h3, .order-summary h4 {
+    color: var(--color-text-light) !important;
+    border: 1px solid #00ff04;
 }
 
 .summary-line {
@@ -542,7 +580,7 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: space-between;
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid #333333;
 }
 
 .summary-line.total {
@@ -556,4 +594,16 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
     margin-top: 20px;
     text-transform: uppercase;
+}
+
+.nav-tabs .nav-link {
+    color: var(--color-text-secondary) !important; /* Texto de la pestaña inactiva */
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--color-accent) !important; /* Pestaña activa con color de acento */
+    background-color: transparent !important;
+    border-color: var(--color-accent) !important;
 }
