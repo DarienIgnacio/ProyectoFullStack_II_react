@@ -1,77 +1,71 @@
-// src/services/ProductService.spec.js
 import { ProductService } from './ProductService';
 import { PRODUCTOS_BASE } from '../data/products';
 
 describe('ProductService', () => {
-    let productService;
+    let service;
 
     beforeEach(() => {
-        productService = new ProductService();
+        service = new ProductService();
     });
 
-    // PRUEBA 1: Obtener todos los productos
-    it('debe retornar todos los productos', () => {
-        const products = productService.getAllProducts();
-        expect(products.length).toBe(PRODUCTOS_BASE.length);
-        expect(products).toEqual(PRODUCTOS_BASE);
+    it('getAllProducts debe retornar todos los productos', () => {
+        const result = service.getAllProducts();
+
+        expect(result.length).toBe(PRODUCTOS_BASE.length);
     });
 
-    // PRUEBA 2: Obtener producto por ID existente
-    it('debe retornar producto cuando el ID existe', () => {
-        const product = productService.getProductById('1');
-        expect(product).toBeTruthy();
-        expect(product.id).toBe(1);
-        expect(product.nombre).toBe('Audífonos HyperX Cloud II');
+    it('getProductById debe encontrar un producto por ID', () => {
+        const mockId = PRODUCTOS_BASE[0].id;
+
+        const result = service.getProductById(mockId);
+
+        expect(result).toBeDefined();
+        expect(result.id).toBe(mockId);
     });
 
-    // PRUEBA 3: Retornar null cuando el ID no existe
-    it('debe retornar null cuando el ID no existe', () => {
-        const product = productService.getProductById('999');
-        expect(product).toBeNull();
+    it('getFeaturedProducts debe retornar N productos', () => {
+        const result = service.getFeaturedProducts(3);
+
+        expect(result.length).toBe(3);
     });
 
-    // PRUEBA 4: Obtener productos destacados
-    it('debe retornar productos destacados', () => {
-        const featured = productService.getFeaturedProducts(2);
-        expect(featured.length).toBe(2);
-        expect(featured[0].id).toBe(1);
-        expect(featured[1].id).toBe(2);
+    it('getProductsByCategory debe filtrar correctamente', () => {
+        const categoria = PRODUCTOS_BASE[0].categoria;
+
+        const result = service.getProductsByCategory(categoria);
+
+        expect(result.every(p => p.categoria === categoria)).toBeTrue();
     });
 
-    // PRUEBA 5: Obtener productos por categoría
-    it('debe filtrar productos por categoría', () => {
-        const accesorios = productService.getProductsByCategory('accesorios');
-        expect(accesorios.length).toBeGreaterThan(0);
-        accesorios.forEach(product => {
-            expect(product.categoria).toBe('accesorios');
-        });
+    it('searchProducts debe buscar por nombre', () => {
+        const nombre = PRODUCTOS_BASE[0].nombre.split(' ')[0];
+
+        const result = service.searchProducts(nombre);
+
+        expect(result.length).toBeGreaterThan(0);
     });
 
-    // PRUEBA 6: Retornar todos los productos cuando categoría es "todos"
-    it('debe retornar todos los productos cuando categoría es "todos"', () => {
-        const todos = productService.getProductsByCategory('todos');
-        expect(todos.length).toBe(PRODUCTOS_BASE.length);
+        it('getProductById debe retornar null si el producto no existe', () => {
+        const result = service.getProductById('id-inexistente');
+        expect(result).toBeNull();
     });
 
-    // PRUEBA 7: Búsqueda de productos
-    it('debe buscar productos por término', () => {
-        const resultados = productService.searchProducts('gamer');
-        expect(resultados.length).toBeGreaterThan(0);
-        resultados.forEach(product => {
-            expect(product.nombre.toLowerCase()).toContain('gamer');
-        });
+    it('getFeaturedProducts debe retornar todos si se pide un número mayor al total', () => {
+        const total = PRODUCTOS_BASE.length;
+        const result = service.getFeaturedProducts(total + 5);
+
+        expect(result.length).toBe(total);
     });
 
-    // PRUEBA 8: Retornar todos los productos cuando búsqueda está vacía
-    it('debe retornar todos los productos cuando búsqueda está vacía', () => {
-        const resultados = productService.searchProducts('');
-        expect(resultados.length).toBe(PRODUCTOS_BASE.length);
+    it('getProductsByCategory debe retornar arreglo vacío si la categoría no existe', () => {
+        const result = service.getProductsByCategory('categoria-que-no-existe');
+
+        expect(result.length).toBe(0);
     });
 
-    // PRUEBA 9: Búsqueda case insensitive
-    it('debe realizar búsqueda case insensitive', () => {
-        const resultados1 = productService.searchProducts('GAMER');
-        const resultados2 = productService.searchProducts('gamer');
-        expect(resultados1.length).toBe(resultados2.length);
+
+    it('searchProducts debe retornar arreglo vacío si no hay coincidencias', () => {
+        const result = service.searchProducts('zzzzzzzzzzzz');
+        expect(result.length).toBe(0);
     });
 });

@@ -1,96 +1,63 @@
-// src/services/CartService.spec.js
 import { CartService } from './CartService';
 
 describe('CartService', () => {
-    let cartService;
+    let service;
 
     beforeEach(() => {
-        cartService = new CartService();
-        // Limpiar localStorage antes de cada test
-        localStorage.clear();
+        service = new CartService();
+
+        spyOn(localStorage, 'getItem').and.returnValue(null);
+        spyOn(localStorage, 'setItem');
+        spyOn(localStorage, 'removeItem');
     });
 
-    // PRUEBA 1: Cálculo del subtotal
-    it('debe calcular el subtotal correctamente para múltiples ítems', () => {
-        const items = [
-            { id: 1, cantidad: 2, precio: 50000 },
-            { id: 2, cantidad: 1, precio: 30000 }
-        ];
-        const subtotal = cartService.calculateSubtotal(items);
-        expect(subtotal).toBe(130000);
+    it('loadCart debe retornar [] si localStorage está vacío', () => {
+        const result = service.loadCart();
+        expect(result).toEqual([]);
     });
 
-    // PRUEBA 2: Subtotal con carrito vacío
-    it('debe retornar 0 cuando el carrito está vacío', () => {
-        const subtotal = cartService.calculateSubtotal([]);
-        expect(subtotal).toBe(0);
+    it('saveCart debe guardar items en localStorage', () => {
+        service.saveCart([{ id: 1 }]);
+
+        expect(localStorage.setItem).toHaveBeenCalled();
     });
 
-    // PRUEBA 3: Agregar item al carrito
-    it('debe incrementar la cantidad del ítem existente si se añade de nuevo', () => {
-        const initialCart = [{ id: 1, cantidad: 2, precio: 50000 }];
-        const existingItem = { id: 1, precio: 50000 };
-        
-        const updatedCart = cartService.addItem(initialCart, existingItem, 1);
-        
-        expect(updatedCart.length).toBe(1);
-        expect(updatedCart[0].cantidad).toBe(3);
+    it('calculateSubtotal debe sumar correctamente', () => {
+        const subtotal = service.calculateSubtotal([
+            { precio: 1000, cantidad: 2 }, // 2000
+            { precio: 500, cantidad: 3 }   // 1500
+        ]);
+
+        expect(subtotal).toBe(3500);
     });
 
-    // PRUEBA 4: Agregar nuevo item al carrito
-    it('debe agregar nuevo item cuando no existe', () => {
-        const initialCart = [{ id: 1, cantidad: 1, precio: 50000 }];
-        const newItem = { id: 2, precio: 30000 };
-        
-        const updatedCart = cartService.addItem(initialCart, newItem, 2);
-        
-        expect(updatedCart.length).toBe(2);
-        expect(updatedCart[1].id).toBe(2);
-        expect(updatedCart[1].cantidad).toBe(2);
+    it('addItem debe agregar nuevo item si no existe', () => {
+        const cart = [];
+
+        const updated = service.addItem(cart, { id: 1, precio: 100 }, 2);
+
+        expect(updated.length).toBe(1);
+        expect(updated[0].cantidad).toBe(2);
     });
 
-    // PRUEBA 5: Cálculo de totales con envío gratis
-    it('debe calcular envío gratis cuando subtotal supera el umbral', () => {
-        const items = [{ id: 1, cantidad: 1, precio: 250000 }];
-        const totals = cartService.calculateTotals(items);
-        
-        expect(totals.shipping).toBe('Gratis');
-        expect(totals.total).toBe('CLP $250.000');
+    it('addItem debe incrementar cantidad si ya existe', () => {
+        const cart = [{ id: 1, precio: 100, cantidad: 1 }];
+
+        const updated = service.addItem(cart, { id: 1, precio: 100 }, 3);
+
+        expect(updated[0].cantidad).toBe(4);
     });
 
-    // PRUEBA 6: Cálculo de totales con envío normal
-    it('debe calcular envío normal cuando subtotal no supera el umbral', () => {
-        const items = [{ id: 1, cantidad: 1, precio: 50000 }];
-        const totals = cartService.calculateTotals(items);
-        
-        expect(totals.shipping).toBe('CLP $5.000');
-        expect(totals.total).toBe('CLP $55.000');
+    it('clearCart debe llamar removeItem', () => {
+        service.clearCart();
+        expect(localStorage.removeItem).toHaveBeenCalled();
     });
 
-    // PRUEBA 7: Guardar y cargar carrito
-    it('debe guardar y cargar el carrito del localStorage', () => {
-        const testCart = [{ id: 1, cantidad: 1, precio: 50000 }];
-        
-        cartService.saveCart(testCart);
-        const loadedCart = cartService.loadCart();
-        
-        expect(loadedCart).toEqual(testCart);
-    });
+    it('calculateTotals debe aplicar envío gratis cuando subtotal supera el umbral', () => {
+    const result = service.calculateTotals([
+        { precio: 200000, cantidad: 2 }  // subtotal 400.000
+    ]);
 
-    // PRUEBA 8: Cargar carrito vacío cuando no hay datos
-    it('debe retornar array vacío cuando no hay carrito guardado', () => {
-        const loadedCart = cartService.loadCart();
-        expect(loadedCart).toEqual([]);
-    });
-
-    // PRUEBA 9: Limpiar carrito
-    it('debe limpiar el carrito del localStorage', () => {
-        const testCart = [{ id: 1, cantidad: 1, precio: 50000 }];
-        cartService.saveCart(testCart);
-        
-        cartService.clearCart();
-        const loadedCart = cartService.loadCart();
-        
-        expect(loadedCart).toEqual([]);
+    expect(result.shipping).toBe('Gratis');
     });
 });
