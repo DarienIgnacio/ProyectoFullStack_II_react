@@ -21,19 +21,9 @@ export const ProductsPage = ({ addToCart, productService }) => {
     
     // Filtra los productos usando el servicio que recibimos por props
     useEffect(() => {
-        setFilteredProducts(productService.getProductsByCategory(selectedCategory));
-        
-        // Sincroniza la URL con el estado local
-        if (selectedCategory !== 'todos') {
-             setSearchParams({ cat: selectedCategory }, { replace: true });
-        } else {
-             setSearchParams({}, { replace: true });
-        }
-    }, [selectedCategory, setSearchParams, productService]); // Incluimos productService en dependencias
-
-    const handleCategoryClick = (cat) => {
-        setSelectedCategory(cat);
-    };
+    const service = new ProductService();
+    service.getAllProducts().then(data => setProductos(data));
+    }, []);
 
     return (
         <Container className="my-5">

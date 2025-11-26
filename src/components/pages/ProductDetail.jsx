@@ -5,6 +5,11 @@ import { useParams } from 'react-router-dom';
 
 // Recibe props: addToCart y productService
 export const ProductDetail = ({ addToCart, productService }) => {
+    useEffect(() => {
+        const service = new ProductService();
+        service.getProductById(id).then(data => setProducto(data));
+    }, [id]);
+
     const { id } = useParams();
     const product = productService.getProductById(id);
 

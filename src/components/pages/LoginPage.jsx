@@ -39,26 +39,34 @@ export const LoginPage = () => {
         alert(`Iniciando sesión con: ${loginEmail}`);
     };
     
-    const handleRegisterSubmit = (e) => {
+    const handleRegisterSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-        
-        // 🛑 1. VALIDACIÓN DE EDAD
+
         if (!isOver18(regDOB)) {
-            setError('Debes ser mayor de 18 años para registrarte en Level-Up Gamer.');
+            setError("Debes ser mayor de 18 años para registrarte.");
             return;
         }
 
-        // 2. Lógica de registro (si la validación pasa)
-        alert(`Registrando nuevo usuario: ${regNombre}, Email: ${regEmail}, Nacimiento: ${regDOB} (¡Mayor de 18!)`);
-        
-        // 3. Simulación de éxito y limpieza
-        setKey('login'); 
-        setRegNombre('');
-        setRegEmail('');
-        setRegPassword('');
-        setRegDOB('');
+        const body = {
+            nombre: regNombre,
+            email: regEmail,
+            password: regPassword,
+            nacimiento: regDOB
+        };
+
+        const res = await fetch("http://localhost:8080/api/usuarios/registro", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+            alert("Usuario registrado correctamente");
+            setKey("login"); // volver a login
+        }
     };
+
 
     return (
         <Container className="my-5" style={{ maxWidth: '500px' }}>
