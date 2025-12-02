@@ -18,23 +18,24 @@ export const CartProvider = ({ children }) => {
         cartService.saveCart(cartItems);
     }, [cartItems]);
 
-    const addToCart = (productId, cantidad = 1) => {
-        const product = productService.getProductById(productId);
-        if (!product) return;
+    const addToCart = async (productId, cantidad = 1) => {
+    const product = await productService.getProductById(productId);
+    if (!product) return;
 
-        setCartItems(prevItems => {
-            const itemExists = prevItems.find(item => item.id === productId);
-            if (itemExists) {
-                return prevItems.map(item =>
-                    item.id === productId
-                        ? { ...item, cantidad: item.cantidad + cantidad }
-                        : item
-                );
-            } else {
-                return [...prevItems, { ...product, cantidad: cantidad }];
-            }
-        });
-    };
+    setCartItems((prevItems) => {
+        const itemExists = prevItems.find((item) => item.id === productId);
+        if (itemExists) {
+            return prevItems.map((item) =>
+                item.id === productId
+            ? { ...item, cantidad: item.cantidad + cantidad }
+            : item
+        );
+    } else {
+        return [...prevItems, { ...product, cantidad }];
+    }
+  });
+};
+
     
     const removeFromCart = (productId) => {
         setCartItems(prevItems => prevItems.filter(item => item.id !== productId));

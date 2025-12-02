@@ -1,6 +1,9 @@
 // src/components/pages/LoginPage.jsx
 import React, { useState } from 'react';
 import { Container, Form, Button, Card, Tab, Tabs, Alert } from 'react-bootstrap';
+import { UserService } from '../../services/UserService';
+
+const userService = new UserService();
 
 // Función de utilidad para validar la edad
 const isOver18 = (dob) => {
@@ -33,39 +36,62 @@ export const LoginPage = () => {
     const [error, setError] = useState(null); // Estado para mostrar mensajes de error
 
     // Lógica de inicio de sesión (sin cambios importantes)
-    const handleLoginSubmit = (e) => {
-        e.preventDefault();
-        setError(null);
-        alert(`Iniciando sesión con: ${loginEmail}`);
-    };
-    
-    const handleRegisterSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
+const handleLoginSubmit = async (e) => {
+e.preventDefault();
+setError(null);
 
-        if (!isOver18(regDOB)) {
-            setError("Debes ser mayor de 18 años para registrarte.");
-            return;
+    try {
+        const result = await userService.login(loginEmail, loginPassword);
+
+        // Si backend retorna objeto Usuario
+        if (result && result.id) {
+            alert(`Bienvenido, ${result.nombre}!`);
+        } else {
+            // Si backend retorna string de error
+            setError(typeof result === 'string' ? result : 'Credenciales inválidas');
         }
+    } catch (err) {
+            console.error(err);
+            setError('Error al intentar iniciar sesión.');
+    }
+};
 
-        const body = {
+    
+const handleRegisterSubmit = async (e) => {
+e.preventDefault();
+setError(null);
+    
+    // 1. Validar edad
+    if (!isOver18(regDOB)) {
+        setError('Debes ser mayor de 18 años para registrarte en Level-Up Gamer.');
+        return;
+    }
+
+    try {
+        const result = await userService.register({
             nombre: regNombre,
             email: regEmail,
             password: regPassword,
-            nacimiento: regDOB
-        };
-
-        const res = await fetch("http://localhost:8080/api/usuarios/registro", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
+            fechaNacimiento: regDOB
         });
 
-        if (res.ok) {
-            alert("Usuario registrado correctamente");
-            setKey("login"); // volver a login
+        if (result && result.id) {
+            alert('Usuario registrado correctamente. Ahora puedes iniciar sesión.');
+            // limpiar formularios y volver a login
+            setKey('login');
+            setRegNombre('');
+            setRegEmail('');
+            setRegPassword('');
+            setRegDOB('');
+        } else {
+            setError(typeof result === 'string' ? result : 'No se pudo registrar el usuario.');
         }
-    };
+    } catch (err) {
+        console.error(err);
+        setError('Error al registrar usuario.');
+    }
+};
+
 
 
     return (
