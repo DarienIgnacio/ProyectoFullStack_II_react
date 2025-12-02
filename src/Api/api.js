@@ -1,47 +1,36 @@
 // src/api/api.js
 const API_URL = "http://localhost:8080/api";
 
-const defaultHeaders = {
-  "Content-Type": "application/json",
-};
+export async function apiGet(path) {
+  const response = await fetch(`${API_URL}${path}`);
+  if (!response.ok) throw new Error(`Error GET ${path}`);
+  return response.json();
+}
 
-export const apiGet = async (path) => {
-  const res = await fetch(`${API_URL}${path}`);
-  if (!res.ok) {
-    throw new Error(`GET ${path} → ${res.status}`);
-  }
-  return res.json();
-};
-
-export const apiPost = async (path, body) => {
-  const res = await fetch(`${API_URL}${path}`, {
+export async function apiPost(path, body) {
+  const response = await fetch(`${API_URL}${path}`, {
     method: "POST",
-    headers: defaultHeaders,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = await res.text();
-  try {
-    return JSON.parse(data);
-  } catch {
-    return data; // por si backend retorna un string plano (ej: mensaje de error)
-  }
-};
+  if (!response.ok) throw new Error(`Error POST ${path}`);
+  return response.json();
+}
 
-export const apiPut = async (path, body) => {
-  const res = await fetch(`${API_URL}${path}`, {
+export async function apiPut(path, body) {
+  const response = await fetch(`${API_URL}${path}`, {
     method: "PUT",
-    headers: defaultHeaders,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  return res.json();
-};
+  if (!response.ok) throw new Error(`Error PUT ${path}`);
+  return response.json();
+}
 
-export const apiDelete = async (path) => {
-  const res = await fetch(`${API_URL}${path}`, {
+export async function apiDelete(path) {
+  const response = await fetch(`${API_URL}${path}`, {
     method: "DELETE",
   });
-  if (!res.ok) {
-    throw new Error(`DELETE ${path} → ${res.status}`);
-  }
-  return true;
-};
+  if (!response.ok) throw new Error(`Error DELETE ${path}`);
+  return response.text();
+}

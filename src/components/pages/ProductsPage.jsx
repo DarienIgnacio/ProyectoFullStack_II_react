@@ -13,7 +13,7 @@ export const ProductsPage = () => {
         const data = await productService.getAllProducts();
         setProducts(data);
       } catch (e) {
-        console.error('Error cargando productos', e);
+        console.error("Error cargando productos", e);
       }
     }
     load();

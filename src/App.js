@@ -15,6 +15,9 @@ import { CartPage } from './components/pages/CartPage';
 import { CategoriesPage } from './components/pages/CategoriesPage'; 
 import { LoginPage } from './components/pages/LoginPage'; 
 import { ProductDetail } from './components/pages/ProductDetail'; 
+import { AdminProductsPage } from "./components/pages/AdminProductsPage";
+import { ProductFormPage } from "./components/pages/ProductFormPage";
+
 
 const productService = new ProductService();
 const cartService = new CartService();
@@ -28,8 +31,9 @@ function App() {
     }, [cartItems]);
 
     // LÓGICA DE CARRITO (Pasada como props)
-    const addToCart = (productId, cantidad = 1) => {
-        const product = productService.getProductById(productId);
+    const addToCart = async (productId, cantidad = 1) => {
+    try {
+        const product = await productService.getProductById(productId);
         if (!product) return;
 
         setCartItems(prevItems => {
@@ -41,10 +45,15 @@ function App() {
                         : item
                 );
             } else {
-                return [...prevItems, { ...product, cantidad: cantidad }];
+                return [...prevItems, { ...product, cantidad }];
             }
         });
-    };
+    } catch (e) {
+        console.error("Error al agregar al carrito", e);
+        alert("No se pudo agregar el producto al carrito.");
+    }
+};
+
     
     const removeFromCart = (productId) => {
         setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
@@ -103,6 +112,9 @@ function App() {
                         path="/producto/:id" 
                         element={<ProductDetail addToCart={addToCart} productService={productService} />} 
                     /> 
+                    <Route path="/admin/productos" element={<AdminProductsPage />} />
+                    <Route path="/admin/productos/nuevo" element={<ProductFormPage />} />
+                    <Route path="/admin/productos/:id/editar" element={<ProductFormPage />} />
                 </Routes>
             </main>
             <Footer />
