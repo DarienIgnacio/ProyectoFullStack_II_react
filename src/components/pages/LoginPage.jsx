@@ -1,7 +1,7 @@
 // src/components/pages/LoginPage.jsx
 import React, { useState } from 'react';
 import { Container, Form, Button, Card, Tab, Tabs, Alert } from 'react-bootstrap';
-import { UserService } from '../../services/UserService';
+import  UserService  from '../../services/UserService';
 
 const userService = new UserService();
 

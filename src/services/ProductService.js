@@ -1,32 +1,28 @@
-// src/services/ProductService.js
-import { apiGet, apiPost, apiPut, apiDelete } from "../Api/api";
+import api from "./api";
 
 export class ProductService {
-  // LISTAR TODOS
-  getAllProducts() {
-    return apiGet("/productos");
-  }
 
-  // OBTENER UNO POR ID
-  getProductById(id) {
-    return apiGet(`/productos/${id}`);
-  }
+    async getAllProducts() {
+        const response = await api.get("/productos");
+        return response.data; // <--- Importante!
+    }
 
-  // CREAR
-  createProduct(data) {
-    return apiPost("/productos", data);
-  }
+    async getById(id) {
+        const response = await api.get(`/productos/${id}`);
+        return response.data;
+    }
 
-  // ACTUALIZAR
-  updateProduct(id, data) {
-    return apiPut(`/productos/${id}`, data);
-  }
+    async createProduct(producto) {
+        const response = await api.post("/productos", producto);
+        return response.data;
+    }
 
-  // ELIMINAR
-  deleteProduct(id) {
-    return apiDelete(`/productos/${id}`);
-  }
+    async updateProduct(id, producto) {
+        const response = await api.put(`/productos/${id}`, producto);
+        return response.data;
+    }
+
+    async deleteProduct(id) {
+        await api.delete(`/productos/${id}`);
+    }
 }
-
-// (opcional) export default
-export default ProductService;

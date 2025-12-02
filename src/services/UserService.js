@@ -1,6 +1,16 @@
-import { apiPost } from "../Api/api";
+// src/services/UserService.js
 
-export const UserService = {
-  register: (data) => apiPost("/usuarios/registro", data),
-  login: (data) => apiPost("/usuarios/login", data),
-};
+import api from './api';
+
+export default class UserService {
+
+    async register(user) {
+        const res = await api.post('/usuarios/registro', user);
+        return res.data;
+    }
+
+    async login(email, password) {
+        const res = await api.post('/usuarios/login', { email, password });
+        return res.data;
+    }
+}
