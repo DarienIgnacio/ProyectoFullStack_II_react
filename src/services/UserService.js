@@ -1,4 +1,4 @@
-import { apiPost } from "../api/api";
+import { apiPost } from "../Api/api";
 
 export const UserService = {
   register: (data) => apiPost("/usuarios/registro", data),

@@ -1,5 +1,5 @@
 // src/services/ProductService.js
-import { apiGet, apiPost, apiPut, apiDelete } from "../api/api";
+import { apiGet, apiPost, apiPut, apiDelete } from "../Api/api";
 
 export class ProductService {
   // LISTAR TODOS
