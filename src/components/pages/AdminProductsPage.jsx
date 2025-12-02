@@ -1,96 +1,74 @@
 // src/components/pages/AdminProductsPage.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Container, Table, Button } from "react-bootstrap";
 import { ProductService } from "../../services/ProductService";
+import { Link } from "react-router-dom";
+
+const productService = new ProductService();
 
 export const AdminProductsPage = () => {
   const [products, setProducts] = useState([]);
-  const navigate = useNavigate();
 
-  const loadProducts = async () => {
-    try {
-      const data = await ProductService.getAll();
-      setProducts(data);
-    } catch (err) {
-      console.error("Error cargando productos", err);
-      alert("No se pudieron cargar los productos.");
-    }
-  };
+  async function loadProducts() {
+    const data = await productService.getAllProducts();
+    setProducts(data);
+  }
+
+  async function deleteProduct(id) {
+    if (!window.confirm("¿Eliminar producto?")) return;
+    await productService.deleteProduct(id);
+    loadProducts();
+  }
 
   useEffect(() => {
     loadProducts();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este producto?")) return;
-
-    try {
-      await ProductService.delete(id);
-      await loadProducts();
-    } catch (err) {
-      console.error("Error eliminando producto", err);
-      alert("No se pudo eliminar el producto.");
-    }
-  };
-
   return (
-    <Container className="my-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="section-title">Administrar Productos</h2>
-        <Button variant="success" onClick={() => navigate("/admin/productos/nuevo")}>
-          + Nuevo Producto
-        </Button>
-      </div>
+    <div className="container my-5">
+      <h2>Administrar Productos</h2>
 
-      <Table striped bordered hover responsive>
+      <Link to="/admin/productos/nuevo" className="btn btn-success my-3">
+        + Crear Producto
+      </Link>
+
+      <table className="table table-dark table-striped">
         <thead>
           <tr>
             <th>ID</th>
             <th>Nombre</th>
-            <th>Categoría</th>
+            <th>Categoria</th>
             <th>Precio</th>
-            <th>Imagen (URL)</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          {products.length === 0 && (
-            <tr>
-              <td colSpan={6} className="text-center">
-                No hay productos registrados.
-              </td>
-            </tr>
-          )}
 
+        <tbody>
           {products.map((p) => (
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.nombre}</td>
               <td>{p.categoria}</td>
-              <td>{p.precio}</td>
-              <td>{p.imagen}</td>
+              <td>CLP ${p.precio}</td>
+
               <td>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  className="me-2"
-                  onClick={() => navigate(`/admin/productos/${p.id}/editar`)}
+                <Link
+                  to={`/admin/productos/${p.id}/editar`}
+                  className="btn btn-warning btn-sm me-2"
                 >
                   Editar
-                </Button>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => handleDelete(p.id)}
+                </Link>
+
+                <button
+                  onClick={() => deleteProduct(p.id)}
+                  className="btn btn-danger btn-sm"
                 >
                   Eliminar
-                </Button>
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
-      </Table>
-    </Container>
+      </table>
+    </div>
   );
 };

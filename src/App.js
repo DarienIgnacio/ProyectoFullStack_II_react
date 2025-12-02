@@ -17,6 +17,7 @@ import { LoginPage } from './components/pages/LoginPage';
 import { ProductDetail } from './components/pages/ProductDetail'; 
 import { AdminProductsPage } from "./components/pages/AdminProductsPage";
 import { ProductFormPage } from "./components/pages/ProductFormPage";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 
 const productService = new ProductService();
@@ -115,6 +116,33 @@ function App() {
                     <Route path="/admin/productos" element={<AdminProductsPage />} />
                     <Route path="/admin/productos/nuevo" element={<ProductFormPage />} />
                     <Route path="/admin/productos/:id/editar" element={<ProductFormPage />} />
+
+                    <Route
+                        path="/admin/productos"
+                        element={
+                            <ProtectedRoute>
+                            <AdminProductsPage />
+                            </ProtectedRoute>
+                        }
+                        />
+
+                        <Route
+                        path="/admin/productos/nuevo"
+                        element={
+                            <ProtectedRoute>
+                            <ProductFormPage />
+                            </ProtectedRoute>
+                        }
+                        />
+
+                        <Route
+                        path="/admin/productos/:id/editar"
+                        element={
+                            <ProtectedRoute>
+                            <ProductFormPage />
+                            </ProtectedRoute>
+                        }
+                        />
                 </Routes>
             </main>
             <Footer />

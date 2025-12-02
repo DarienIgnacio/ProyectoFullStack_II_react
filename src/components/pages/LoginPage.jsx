@@ -1,179 +1,190 @@
-// src/components/pages/LoginPage.jsx
 import React, { useState } from 'react';
 import { Container, Form, Button, Card, Tab, Tabs, Alert } from 'react-bootstrap';
-import  UserService  from '../../services/UserService';
+import { userService } from '../../services/UserService';
 
-const userService = new UserService();
+// Verificar si es mayor de 18
+function isOver18(dateString) {
+  const today = new Date();
+  const birthDate = new Date(dateString);
 
-// Función de utilidad para validar la edad
-const isOver18 = (dob) => {
-    if (!dob) return false;
-    const today = new Date();
-    const birthDate = new Date(dob);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-    
-    // Ajuste de edad si aún no ha cumplido años este mes
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-    }
-    return age >= 18;
-};
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age >= 18;
+}
 
 export const LoginPage = () => {
-    const [key, setKey] = useState('login'); 
-    
-    // Estados para los formularios de Login (sin cambios)
-    const [loginEmail, setLoginEmail] = useState('');
-    const [loginPassword, setLoginPassword] = useState('');
-    
-    // Estados para los formularios de Registro (NUEVO CAMPO DE FECHA)
-    const [regNombre, setRegNombre] = useState('');
-    const [regEmail, setRegEmail] = useState('');
-    const [regPassword, setRegPassword] = useState('');
-    const [regDOB, setRegDOB] = useState(''); // Estado para Date of Birth (Fecha de Nacimiento)
-    
-    const [error, setError] = useState(null); // Estado para mostrar mensajes de error
+  const [key, setKey] = useState('login');
 
-    // Lógica de inicio de sesión (sin cambios importantes)
-const handleLoginSubmit = async (e) => {
-e.preventDefault();
-setError(null);
+  // LOGIN
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
+  // REGISTRO
+  const [regNombre, setRegNombre] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regDOB, setRegDOB] = useState('');
+
+  // Mensajes
+  const [error, setError] = useState(null);
+  const [info, setInfo] = useState(null);
+
+  // ------------------------
+  // LOGIN SUBMIT
+  // ------------------------
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
 
     try {
-        const result = await userService.login(loginEmail, loginPassword);
+      const user = await userService.login(loginEmail, loginPassword);
+      setInfo(`Bienvenido ${user.nombre}`);
 
-        // Si backend retorna objeto Usuario
-        if (result && result.id) {
-            alert(`Bienvenido, ${result.nombre}!`);
-        } else {
-            // Si backend retorna string de error
-            setError(typeof result === 'string' ? result : 'Credenciales inválidas');
-        }
+      // Redirigir si quieres:
+      // window.location.href = "/";
     } catch (err) {
-            console.error(err);
-            setError('Error al intentar iniciar sesión.');
+      setError("Credenciales inválidas");
     }
-};
+  };
 
-    
-const handleRegisterSubmit = async (e) => {
-e.preventDefault();
-setError(null);
-    
-    // 1. Validar edad
+  // ------------------------
+  // REGISTRO SUBMIT
+  // ------------------------
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+
     if (!isOver18(regDOB)) {
-        setError('Debes ser mayor de 18 años para registrarte en Level-Up Gamer.');
-        return;
+      setError("Debes ser mayor de 18 años para registrarte.");
+      return;
     }
 
     try {
-        const result = await userService.register({
-            nombre: regNombre,
-            email: regEmail,
-            password: regPassword,
-            fechaNacimiento: regDOB
-        });
+      const usuario = await userService.register({
+        nombre: regNombre,
+        email: regEmail,
+        password: regPassword,
+        fechaNacimiento: regDOB,
+      });
 
-        if (result && result.id) {
-            alert('Usuario registrado correctamente. Ahora puedes iniciar sesión.');
-            // limpiar formularios y volver a login
-            setKey('login');
-            setRegNombre('');
-            setRegEmail('');
-            setRegPassword('');
-            setRegDOB('');
-        } else {
-            setError(typeof result === 'string' ? result : 'No se pudo registrar el usuario.');
-        }
+      setInfo(`Usuario ${usuario.nombre} registrado exitosamente`);
+      setKey("login");
+
+      // limpiar campos
+      setRegNombre("");
+      setRegEmail("");
+      setRegPassword("");
+      setRegDOB("");
     } catch (err) {
-        console.error(err);
-        setError('Error al registrar usuario.');
+      setError("No se pudo registrar. ¿El correo ya existe?");
     }
-};
+  };
 
+  return (
+    <Container className="mt-5" style={{ maxWidth: "500px" }}>
+      <Card>
+        <Card.Body>
+          <h2 className="text-center mb-4">Cuenta Level-Up Gamer</h2>
 
+          {error && <Alert variant="danger">{error}</Alert>}
+          {info && <Alert variant="success">{info}</Alert>}
 
-    return (
-        <Container className="my-5" style={{ maxWidth: '500px' }}>
-            <Card style={{ backgroundColor: 'var(--color-card-bg)', padding: '20px' }}>
-                <Card.Body>
-                    <h2 className="section-title text-center mb-4">Acceso Gamer</h2>
+          <Tabs
+            activeKey={key}
+            onSelect={(k) => setKey(k)}
+            className="mb-3"
+            justify
+          >
+            {/* -----------------------
+                LOGIN TAB
+            ----------------------- */}
+            <Tab eventKey="login" title="Iniciar Sesión">
+              <Form onSubmit={handleLoginSubmit}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Correo electrónico</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    required
+                  />
+                </Form.Group>
 
-                    {/* Mostrar error si existe */}
-                    {error && <Alert variant="danger" className="text-center">{error}</Alert>}
+                <Form.Group className="mb-3">
+                  <Form.Label>Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    required
+                  />
+                </Form.Group>
 
-                    <Tabs
-                        id="controlled-tab-example"
-                        activeKey={key} 
-                        onSelect={(k) => { setKey(k); setError(null); }} // Limpiar error al cambiar de pestaña
-                        className="mb-3 justify-content-center"
-                        style={{ borderBottom: '1px solid var(--color-text-secondary)' }}
-                    >
-                        {/* PESTAÑA 1: INICIAR SESIÓN (Sin cambios de campos) */}
-                        <Tab eventKey="login" title="Iniciar Sesión">
-                            <Form onSubmit={handleLoginSubmit} className="mt-3">
-                                {/* ... Campos de Login ... (Sin cambios) */}
-                                <Form.Group className="mb-3" controlId="formBasicEmail">
-                                    <Form.Label>Correo Electrónico</Form.Label>
-                                    <Form.Control type="email" placeholder="Ingresa tu email gamer" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="formBasicPassword">
-                                    <Form.Label>Contraseña</Form.Label>
-                                    <Form.Control type="password" placeholder="Contraseña secreta" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
-                                </Form.Group>
-                                <Button variant="primary" type="submit" className="w-100 mt-3">Entrar</Button>
-                                <div className="text-center mt-3"><a href="#" style={{ color: 'var(--color-accent)' }}>¿Olvidaste tu contraseña?</a></div>
-                            </Form>
-                        </Tab>
+                <Button type="submit" className="w-100" variant="success">
+                  Iniciar Sesión
+                </Button>
+              </Form>
+            </Tab>
 
-                        {/* PESTAÑA 2: REGISTRARSE (CON CAMPO DE FECHA) */}
-                        <Tab eventKey="registro" title="Registro">
-                            <Form onSubmit={handleRegisterSubmit} className="mt-3">
-                                
-                                <Form.Group className="mb-3" controlId="formRegNombre">
-                                    <Form.Label>Nombre Completo</Form.Label>
-                                    <Form.Control type="text" placeholder="Tu nombre de invocador" value={regNombre} onChange={(e) => setRegNombre(e.target.value)} required />
-                                </Form.Group>
-                                
-                                {/* 🛑 CAMPO NUEVO: FECHA DE NACIMIENTO 🛑 */}
-                                <Form.Group className="mb-3" controlId="formRegDOB">
-                                    <Form.Label>Fecha de Nacimiento</Form.Label>
-                                    <Form.Control 
-                                        type="date" 
-                                        value={regDOB}
-                                        onChange={(e) => setRegDOB(e.target.value)}
-                                        required
-                                        // Establecer un límite superior de fecha (hoy) para evitar fechas futuras
-                                        max={new Date().toISOString().split('T')[0]} 
-                                        // Estilo para asegurar que el selector se vea en el tema oscuro
-                                        style={{ backgroundColor: 'var(--color-primary)', color: 'white', borderColor: '#333' }}
-                                    />
-                                </Form.Group>
-                                
-                                <Form.Group className="mb-3" controlId="formRegEmail">
-                                    <Form.Label>Correo Electrónico</Form.Label>
-                                    <Form.Control type="email" placeholder="Correo de registro" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} required />
-                                </Form.Group>
+            {/* -----------------------
+                REGISTER TAB
+            ----------------------- */}
+            <Tab eventKey="register" title="Registrarse">
+              <Form onSubmit={handleRegisterSubmit}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Nombre completo</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={regNombre}
+                    onChange={(e) => setRegNombre(e.target.value)}
+                    required
+                  />
+                </Form.Group>
 
-                                <Form.Group className="mb-3" controlId="formRegPassword">
-                                    <Form.Label>Contraseña</Form.Label>
-                                    <Form.Control type="password" placeholder="Crea una contraseña segura" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} required />
-                                </Form.Group>
-                                
-                                <Button 
-                                    variant="accent" 
-                                    type="submit" 
-                                    className="w-100 mt-3" 
-                                    style={{ backgroundColor: 'var(--color-accent)', border: 'none', color: 'black' }}
-                                >
-                                    Crear Cuenta
-                                </Button>
-                            </Form>
-                        </Tab>
-                    </Tabs>
-                </Card.Body>
-            </Card>
-        </Container>
-    );
+                <Form.Group className="mb-3">
+                  <Form.Label>Correo electrónico</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Fecha de nacimiento</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={regDOB}
+                    onChange={(e) => setRegDOB(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+
+                <Button type="submit" className="w-100" variant="primary">
+                  Crear Cuenta
+                </Button>
+              </Form>
+            </Tab>
+          </Tabs>
+        </Card.Body>
+      </Card>
+    </Container>
+  );
 };
