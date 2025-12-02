@@ -1,43 +1,32 @@
 // src/components/ui/ProductCard.jsx
+import React from "react";
+import { Link } from "react-router-dom";
 
-import React from 'react';
-import { Card, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+export const ProductCard = ({ product, addToCart }) => {
+  return (
+    <div className="card h-100 text-center shadow-sm" style={{ backgroundColor: 'var(--color-card-bg)' }}>
+      <img
+        src={product.imagen}
+        className="card-img-top p-3"
+        alt={product.nombre}
+        style={{ height: "200px", objectFit: "contain" }}
+      />
 
-export const ProductCard = ({ product, addToCart }) => { 
-    const formattedPrice = `CLP $${product.precio.toLocaleString('es-CL')}`;
+      <div className="card-body">
+        <h5 className="card-title">{product.nombre}</h5>
+        <p className="card-text text-success fw-bold">CLP ${product.precio}</p>
 
-    return (
-        <Card className="product-card h-100" style={{ backgroundColor: 'var(--color-card-bg)' }}>
-            
-            {/* 🛑 COMPONENTE CRÍTICO QUE FALTABA 🛑 */}
-            <Card.Img 
-                variant="top" 
-                src={product.imagen} // Usa la URL del producto
-                alt={product.nombre} 
-                className="product-card-image"
-                // Estilos inline de respaldo para forzar visibilidad (200px)
-                style={{ 
-                    width: '100%',
-                    height: '200px',
-                    objectFit: 'cover'
-                }}
-            />
-            {/* ------------------------------------- */}
+        <Link to={`/producto/${product.id}`} className="btn btn-outline-light w-100 mb-2">
+          Ver Detalles
+        </Link>
 
-            <Card.Body className="d-flex flex-column">
-                <Link to={`/producto/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <h5 className="card-title text-truncate">{product.nombre}</h5>
-                </Link>
-                <div className="product-price mt-auto">{formattedPrice}</div>
-                <Button 
-                    variant="primary" 
-                    className="btn-add-cart w-100 mt-2" 
-                    onClick={() => addToCart(product.id)}
-                >
-                    <i className="fas fa-shopping-cart"></i> Agregar
-                </Button>
-            </Card.Body>
-        </Card>
-    );
+        <button
+          className="btn btn-accent w-100"
+          onClick={() => addToCart(product.id, 1)}
+        >
+          Agregar al Carrito 🛒
+        </button>
+      </div>
+    </div>
+  );
 };

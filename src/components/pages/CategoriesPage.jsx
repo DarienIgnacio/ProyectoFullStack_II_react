@@ -1,68 +1,36 @@
 // src/components/pages/CategoriesPage.jsx
-import React, { useEffect, useState } from "react";
-import { ProductCard } from "../ui/ProductCard";
-import { ProductService } from "../../services/ProductService";
+import React, { useEffect, useState } from 'react';
+import { ProductService } from '../../services/ProductService';
+import { ProductCard } from '../ui/ProductCard';
 
 const productService = new ProductService();
 
-export const CategoriesPage = () => {
-  const [products, setProducts] = useState([]);
+export const CategoriesPage = ({ addToCart }) => {
   const [categories, setCategories] = useState([]);
-  const [selected, setSelected] = useState("all");
 
-  // Cargar productos desde el backend
   useEffect(() => {
     async function load() {
       try {
-        const data = await productService.getAllProducts(); // <-- AQUÍ era el error
-        setProducts(data);
-
-        // Obtener categorías únicas
-        const uniqueCategories = [...new Set(data.map((p) => p.categoria))];
-        setCategories(uniqueCategories);
-      } catch (e) {
-        console.error("Error cargando productos:", e);
+        const data = await productService.getAllProducts();
+        setCategories(data);
+      } catch (error) {
+        console.error('Error cargando categorías', error);
       }
     }
-
     load();
   }, []);
-
-  // Filtrar productos según categoría
-  const filteredProducts =
-    selected === "all"
-      ? products
-      : products.filter((p) => p.categoria === selected);
 
   return (
     <div className="container my-5">
       <h2 className="section-title">Categorías</h2>
 
-      {/* Filtro de categorías */}
-      <div className="mb-4">
-        <button
-          className={`btn me-2 ${selected === "all" ? "btn-primary" : "btn-outline-primary"}`}
-          onClick={() => setSelected("all")}
-        >
-          Todas
-        </button>
-
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            className={`btn me-2 ${selected === cat ? "btn-primary" : "btn-outline-primary"}`}
-            onClick={() => setSelected(cat)}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Productos filtrados */}
       <div className="row">
-        {filteredProducts.map((product) => (
-          <div className="col-md-4 mb-3" key={product.id}>
-            <ProductCard product={product} />
+        {categories.map((cat) => (
+          <div className="col-md-4" key={cat.id}>
+            <ProductCard 
+              product={cat}
+              addToCart={addToCart}    // <-- ⚠️ IMPORTANTE
+            />
           </div>
         ))}
       </div>

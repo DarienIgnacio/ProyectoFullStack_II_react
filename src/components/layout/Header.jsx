@@ -4,7 +4,13 @@ import { Navbar, Nav, Container } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap'; // <-- IMPORTANTE
 
 export const Header = ({ cartTotals }) => {
-    // ...
+    const rol = localStorage.getItem("rol");
+    {rol === "ADMIN" && (
+    <li className="nav-item">
+        <a className="nav-link" href="/admin/productos">Admin</a>
+    </li>
+    )}
+    
     return (
         <Navbar /* ... */ >
             <Container>

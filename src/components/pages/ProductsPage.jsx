@@ -1,10 +1,11 @@
+// src/components/pages/ProductsPage.jsx
 import React, { useEffect, useState } from 'react';
 import { ProductService } from '../../services/ProductService';
 import { ProductCard } from '../ui/ProductCard';
 
 const productService = new ProductService();
 
-export const ProductsPage = () => {
+export const ProductsPage = ({ addToCart }) => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -13,7 +14,7 @@ export const ProductsPage = () => {
         const data = await productService.getAllProducts();
         setProducts(data);
       } catch (e) {
-        console.error("Error cargando productos", e);
+        console.error('Error cargando productos', e);
       }
     }
     load();
@@ -25,7 +26,10 @@ export const ProductsPage = () => {
       <div className="row">
         {products.map((p) => (
           <div className="col-md-4 mb-3" key={p.id}>
-            <ProductCard product={p} />
+            <ProductCard 
+              product={p} 
+              addToCart={addToCart}   // <-- ✔ AHORA SE ENVÍA
+            />
           </div>
         ))}
       </div>

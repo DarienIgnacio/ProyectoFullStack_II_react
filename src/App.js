@@ -22,6 +22,8 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const productService = new ProductService();
 const cartService = new CartService();
+const isAdmin = localStorage.getItem("rol") === "ADMIN";
+
 
 function App() {
     const [cartItems, setCartItems] = useState(cartService.loadCart());
@@ -107,7 +109,7 @@ function App() {
                             />
                         } 
                     />
-                    <Route path="/categorias" element={<CategoriesPage productService={productService} />} />
+                    <Route path="/categorias" element={<CategoriesPage addToCart={addToCart} />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route 
                         path="/producto/:id" 
